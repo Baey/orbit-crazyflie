@@ -30,6 +30,7 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
+import torch
 import omni.isaac.orbit.sim as sim_utils
 from omni.isaac.orbit.assets import Articulation
 from omni.isaac.orbit.sim import SimulationContext
@@ -37,7 +38,7 @@ from omni.isaac.orbit.sim import SimulationContext
 ##
 # Pre-defined configs
 ##
-from omni.isaac.orbit_assets.cassie import CASSIE_CFG  # isort:skip
+from omni.isaac.orbit_assets.crazyflie import CRAZYFLIE_CFG  # isort:skip
 
 
 def main():
@@ -59,11 +60,11 @@ def main():
     cfg.func("/World/Light", cfg)
 
     # Robots
-    robot_cfg = CASSIE_CFG
-    robot_cfg.spawn.func("/World/Cassie/Robot_1", robot_cfg.spawn, translation=(1.5, 0.5, 0.42))
+    drone_cfg = CRAZYFLIE_CFG
+    drone_cfg.spawn.func("/World/Crazyflie/Drone_1", drone_cfg.spawn, translation=(1.5, 0.5, 0.42))
 
     # create handles for the robots
-    robots = Articulation(robot_cfg.replace(prim_path="/World/Cassie/Robot.*"))
+    drones = Articulation(drone_cfg.replace(prim_path="/World/Crazyflie/Drone.*"))
 
     # Play the simulator
     sim.reset()
@@ -83,23 +84,26 @@ def main():
             sim_time = 0.0
             count = 0
             # reset dof state
-            joint_pos, joint_vel = robots.data.default_joint_pos, robots.data.default_joint_vel
-            robots.write_joint_state_to_sim(joint_pos, joint_vel)
-            robots.write_root_pose_to_sim(robots.data.default_root_state[:, :7])
-            robots.write_root_velocity_to_sim(robots.data.default_root_state[:, 7:])
-            robots.reset()
+            joint_pos, joint_vel = drones.data.default_joint_pos, drones.data.default_joint_vel
+            drones.write_joint_state_to_sim(joint_pos, joint_vel)
+            drones.write_root_pose_to_sim(drones.data.default_root_state[:, :7])
+            drones.write_root_velocity_to_sim(drones.data.default_root_state[:, 7:])
+            drones.reset()
             # reset command
             print(">>>>>>>> Reset!")
         # apply action to the robot
-        robots.set_joint_position_target(robots.data.default_joint_pos.clone())
-        robots.write_data_to_sim()
+        velocities = torch.ones(1, 1) * 1000.0
+        drones.set_joint_velocity_target(velocities, joint_ids=[1])
+        # forces = torch.tensor([0.0, 0.0, 0.00]).reshape(1, 3)
+        # drones.set_external_force_and_torque(forces=forces, torques=torch.zeros(1,3), body_ids=[1, 2, 3, 4])
+        drones.write_data_to_sim()
         # perform step
         sim.step()
         # update sim-time
         sim_time += sim_dt
         count += 1
         # update buffers
-        robots.update(sim_dt)
+        drones.update(sim_dt)
 
 
 if __name__ == "__main__":
