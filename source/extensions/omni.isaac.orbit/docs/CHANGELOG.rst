@@ -1,6 +1,45 @@
 Changelog
 ---------
 
+0.15.8 (2024-04-02)
+~~~~~~~~~~~~~~~~~~~
+
+Added
+^^^^^
+* Adds option to define ordering of points for the mesh-grid generation in the
+  :func:`omni.isaac.orbit.sensors.ray_caster.patterns.grid_pattern`. This parameter defaults to 'xy'
+  for backward compatibility.
+
+
+0.15.7 (2024-03-28)
+~~~~~~~~~~~~~~~~~~~
+
+Added
+^^^^^
+
+* Adds option to return indices/data in the specified query keys order in
+  :class:`omni.isaac.orbit.managers.SceneEntityCfg` class, and the respective
+  :func:`omni.isaac.orbit.utils.string.resolve_matching_names_values` and
+  :func:`omni.isaac.orbit.utils.string.resolve_matching_names` functions.
+
+
+0.15.6 (2024-03-28)
+~~~~~~~~~~~~~~~~~~~
+
+Added
+^^^^^
+
+* Extended the :class:`omni.isaac.orbit.app.AppLauncher` class to support the loading of experience files
+  from the command line. This allows users to load a specific experience file when running the application
+  (such as for multi-camera rendering or headless mode).
+
+Changed
+^^^^^^^
+
+* Changed default loading of experience files in the :class:`omni.isaac.orbit.app.AppLauncher` class from the ones
+  provided by Isaac Sim to the ones provided in Orbit's ``source/apps`` directory.
+
+
 0.15.5 (2024-03-23)
 ~~~~~~~~~~~~~~~~~~~
 
