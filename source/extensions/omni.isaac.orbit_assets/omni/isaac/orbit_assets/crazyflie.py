@@ -16,18 +16,18 @@ CRAZYFLIE_CFG = ArticulationCfg(
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
             retain_accelerations=False,
-            linear_damping=0.0,
-            angular_damping=0.0,
+            linear_damping=0.2,
+            angular_damping=0.2,
             max_linear_velocity=1000.0,
             max_angular_velocity=1000.0,
-            max_depenetration_velocity=1.0,
+            max_depenetration_velocity=10.0,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-            enabled_self_collisions=True, solver_position_iteration_count=4, solver_velocity_iteration_count=0
+            enabled_self_collisions=False, solver_position_iteration_count=4, solver_velocity_iteration_count=0
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.0),
+        # pos=(0.0, 0.0, 0.0),
         joint_pos={
             "m1_joint": 0.0,
             "m2_joint": 0.0,
@@ -39,15 +39,16 @@ CRAZYFLIE_CFG = ArticulationCfg(
     actuators={
         "rotors": DCMotorCfg(
             joint_names_expr=[".*_joint"],
-            effort_limit=100.0,
-            velocity_limit=2000.0,
+            effort_limit=1.0,
+            friction=0.0,
+            velocity_limit=231500.0,
             stiffness={
                 ".*_joint": 0.0,
             },
             damping={
-                ".*_joint": 60,
+                ".*_joint": 1.0,
             },
-            saturation_effort=1e-6
+            saturation_effort=8e-3
         )
     },
 )
