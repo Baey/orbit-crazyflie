@@ -50,7 +50,7 @@ def main():
         sim_utils.SimulationCfg(device="cpu", use_gpu_pipeline=False, dt=0.005, physx=sim_utils.PhysxCfg(use_gpu=False))
     )
     # Set main camera
-    sim.set_camera_view(eye=(3.5, 3.5, 3.5), target=(0.0, 0.0, 0.0))
+    sim.set_camera_view(eye=(1.0, 1.0, 1.0), target=(0.0, 0.0, 0.0))
 
     # Spawn things into stage
     # Ground-plane
@@ -76,13 +76,13 @@ def main():
     sim_dt = sim.get_physics_dt()
     sim_time = 0.0
     count = 0
-    sp = 1000.0
-    rotor_constant = 8.54858e-8
+    # sp = 62.8
+    rotor_constant = 5.54858e-6
     rolling_moment_coefficient = 1.24e-7
     # Simulate physics
     while simulation_app.is_running():
         # reset
-        if count % 500 == 0:
+        if count % 300 == 0:
             # reset counters
             sim_time = 0.0
             count = 0
@@ -92,12 +92,15 @@ def main():
             drones.write_root_pose_to_sim(drones.data.default_root_state[:, :7])
             drones.write_root_velocity_to_sim(drones.data.default_root_state[:, 7:])
             drones.reset()
-            velocities_sp = torch.ones(1, 4, dtype=torch.float32) * sp
-            drones.set_joint_velocity_target(velocities_sp)
+            # velocities_sp = torch.tensor([1, -1, 1, -1], dtype=torch.float32) * sp
+            # drones.set_joint_velocity_target(velocities_sp)
             # reset command
             print(">>>>>>>> Reset!")
         # apply action to the robot
-
+        # velocities_sp = torch.tensor([1, -1, 1, -1], dtype=torch.float32) * torch.clamp(torch.tensor([count / 10]), 0.0, 240.0)
+        efforts = torch.tensor([1, -1, 1, -1], dtype=torch.float32) * 3.8e-3
+        drones.set_joint_effort_target(efforts)
+        # drones.set_joint_velocity_target(velocities_sp)
         velocities_current = drones.data.joint_vel.clone()
         forces = torch.zeros(1, 4, 3)
         forces[:, :, 2] = rotor_constant * torch.square(velocities_current)
@@ -105,9 +108,9 @@ def main():
         torques = torch.zeros(1, 1, 3)
         torques[:, :, 2] = rolling_moment
         drones.set_external_force_and_torque(forces=forces, torques=torch.zeros(1, 4, 3), body_ids=[1, 2, 3, 4])
-        drones.set_external_force_and_torque(forces=torch.zeros(1, 1, 3), torques=torques, body_ids=[0])
+        # drones.set_external_force_and_torque(forces=torch.zeros(1, 1, 3), torques=torques, body_ids=[0])
 
-        print(velocities_current, drones.data.body_ang_vel_w[0][0][2], rolling_moment)
+        print(velocities_current)
         drones.write_data_to_sim()
         # perform step
         sim.step()

@@ -39,16 +39,16 @@ CRAZYFLIE_CFG = ArticulationCfg(
     actuators={
         "rotors": DCMotorCfg(
             joint_names_expr=[".*_joint"],
-            effort_limit=1.0,
+            effort_limit=7.8e-3,#0.009, # 0.0075
             friction=0.0,
-            velocity_limit=231500.0,
+            velocity_limit=4000.0,
             stiffness={
                 ".*_joint": 0.0,
             },
             damping={
-                ".*_joint": 1.0,
+                ".*_joint": 0.0 #5e-5,
             },
-            saturation_effort=8e-3
+            saturation_effort=7.8e-3#0.008
         )
     },
 )
