@@ -29,7 +29,7 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
-import gymnasium as gym
+import gymnasium as gym # noqa: F401
 import torch
 
 from omni.isaac.orbit.envs import RLTaskEnv
