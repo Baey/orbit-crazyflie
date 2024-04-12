@@ -140,7 +140,7 @@ class RewardsCfg:
     # (2) Reward for reaching target height
     upright = RewTerm(func=mdp.base_height_l2, weight=0.1, params={"target_height": 1.2})
     # (3) Reward for non-upright posture
-    upright = RewTerm(func=mdp.upright_posture_bonus, weight=0.1, params={"threshold": 0.93})
+    upright = RewTerm(func=mdp.flat_orientation_bonus, weight=0.1, params={"threshold": 0.93})
     # (4) Penalty for large action commands
     action_l2 = RewTerm(func=mdp.action_l2, weight=-0.001)
 

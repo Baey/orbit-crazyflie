@@ -32,7 +32,6 @@ simulation_app = app_launcher.app
 import gymnasium as gym
 import torch
 
-from omni.isaac.orbit_tasks.utils import parse_env_cfg
 from omni.isaac.orbit.envs import RLTaskEnv
 from omni.isaac.contrib_tasks.crazyflie.crazyflie_env_cfg import CrazyflieEnvCfg
 
@@ -59,7 +58,7 @@ def main():
             # sample random actions
             joint_efforts = torch.randn_like(env.action_manager.action)
             # step the environment
-            obs, rew, terminated, truncated, info = env.step(joint_efforts)
+            _ = env.step(joint_efforts)
             # update counter
             count += 1
 
