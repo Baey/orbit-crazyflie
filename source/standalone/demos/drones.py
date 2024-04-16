@@ -43,10 +43,10 @@ class CrazyfliesV1(Articulation):
 
         # Parameters
         self._rotor_constant = 5.54858e-6
-        self._rolling_moment_coefficient = 1.24e-7
+        self._rolling_moment_coefficient = 3.14e-8
 
     def reset(self):
-        joint_pos, joint_vel = self.get_position(), self.get_velocity()
+        joint_pos, joint_vel = self.get_rotors_position(), self.get_rotors_velocity()
         super().write_joint_state_to_sim(joint_pos, joint_vel)
         super().write_root_pose_to_sim(super().data.default_root_state[:, :7])
         super().write_root_velocity_to_sim(super().data.default_root_state[:, 7:])
@@ -62,11 +62,11 @@ class CrazyfliesV1(Articulation):
         return super().num_instances
 
     #TODO: get position using sesors
-    def get_position(self):
+    def get_rotors_position(self):
         return super().data.joint_pos.clone()
     
     #TODO: get velocity using sesors
-    def get_velocity(self):
+    def get_rotors_velocity(self):
         return super().data.joint_vel.clone()
     
     #TODO: get acceleration using sesors
@@ -75,17 +75,19 @@ class CrazyfliesV1(Articulation):
 
     def set_effort(self, efforts: torch.tensor):
         super().set_joint_effort_target(efforts)
-        velocity = self.get_velocity()
+        velocity = self.get_rotors_velocity()
+        velocity_squered = torch.square(velocity)
 
         drones_count = self.get_drones_count()
 
-        rolling_moment = torch.sum(self._rolling_moment_coefficient * torch.square(velocity))
         torques = torch.zeros(drones_count, 4, 3)
-        #FIXME apply non-zero torques
-        # torques[:, :, 2] = rolling_moment
+        torques[:, :, 2] = self._rolling_moment_coefficient * velocity_squered * torch.tensor([-1, 1, -1, 1], dtype=torch.float32)
+        # print("torques",torques)
 
         forces = torch.zeros(drones_count, 4, 3)
-        forces[:, :, 2] = self._rotor_constant * torch.square(velocity)
+        forces[:, :, 2] = self._rotor_constant * velocity_squered
+        # print("forces",forces)
+
         super().set_external_force_and_torque(forces=forces, torques=torques, body_ids=[1, 2, 3, 4])
 
 
@@ -137,7 +139,7 @@ def main():
             print(">>>>>>>> Reset!")
 
         # set efforts
-        efforts = torch.tensor([1, -1, 1, -1], dtype=torch.float32) * 3.8e-3
+        efforts = torch.tensor([1, -1.1, 1, -1.1], dtype=torch.float32) * 4.50e-3
         drones.set_effort(efforts)
 
         # apply changes
